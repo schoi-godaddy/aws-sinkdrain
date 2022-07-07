@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  RepoName:
+    Type: String
+Resources:
+  AppECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepoName
+Outputs:
+  Arn:
+    Value: !GetAtt AppECR.Arn
+  Name:
+    Value: !Ref RepoName

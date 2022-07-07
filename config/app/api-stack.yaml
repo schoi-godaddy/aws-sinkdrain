@@ -1,0 +1,12 @@
+template_path: api-stack.yaml
+stack_name: "{{ project_code }}-api-stack"
+parameters:
+  RoleName: "{{ project_code }}-lambda-role"
+  LambdaName: "{{ project_code }}"
+  ContainerImageUri: "{{ environment_variable.AWS_ACCOUNT }}.dkr.ecr.{{ environment_variable.AWS_REGION }}.amazonaws.com/{{ project_code }}:latest"
+  APIName: "{{ project_code }}"
+dependencies:
+  - app/ecr.yaml
+hooks:
+  after_launch:
+    - !cmd "make update-lambda"

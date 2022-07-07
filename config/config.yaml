@@ -1,0 +1,2 @@
+project_code: "{{ environment_variable.APP_NAME }}"
+region: "{{ environment_variable.AWS_REGION }}"

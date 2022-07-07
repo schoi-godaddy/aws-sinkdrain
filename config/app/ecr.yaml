@@ -1,0 +1,10 @@
+template_path: ecr.yaml
+stack_name: "{{ project_code }}-ecr-stack"
+parameters:
+  RepoName: "{{ project_code }}"
+hooks:
+  after_launch:
+    - !cmd "make build-image"
+    - !cmd "make deploy-image"
+  before_delete:
+    - !cmd "make clean-image"
