@@ -7,7 +7,7 @@ build-image:
 	@cd src/ && \
 		GOOS=linux go build -o main && \
 		docker build -t ${APP_NAME} . && \
-		rm -rf ${APP_NAME}
+		rm -rf main
 	docker tag ${APP_NAME}:latest ${ECR_REGISTRY}/${APP_NAME}:latest
 
 .PHONY: ecr-login

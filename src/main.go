@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -18,30 +19,38 @@ type Event struct {
 }
 
 type APIGatewayEvent struct {
-	Headers        map[string]interface{} `json:"headers"`
-	RequestContext map[string]interface{} `json:"requestContext"`
-	Body           string                 `json:"body"`
+	Headers         map[string]interface{} `json:"headers"`
+	RequestContext  map[string]interface{} `json:"requestContext"`
+	Body            string                 `json:"body"`
+	IsBase64Encoded bool                   `json:"isBase64Encoded"`
 }
 
 // https://www.crimsonmacaw.com/blog/handling-multiple-aws-lambda-event-types-with-go/#aws-lambda-in-go
 // https://pkg.go.dev/encoding/json#Unmarshaler
 func (event *Event) UnmarshalJSON(data []byte) error {
+	// log.Print("data ", string(data))
 	e := &APIGatewayEvent{}
 
 	if err := json.Unmarshal(data, &e); err != nil {
 		return err
 	}
 
-	b, err := base64.StdEncoding.DecodeString(e.Body)
-
-	if err != nil {
-		return err
-	}
-
 	body := &map[string]interface{}{}
 
-	if err := json.Unmarshal(b, &body); err != nil {
-		return err
+	if e.IsBase64Encoded {
+		b, err := base64.StdEncoding.DecodeString(e.Body)
+
+		if err != nil {
+			return err
+		}
+
+		if err := json.Unmarshal(b, &body); err != nil {
+			return err
+		}
+	} else {
+		// Having bit of trouble unmarshalling data correctly.
+		// ex) try calling api with javascript fetch().
+		return errors.New("api only supports base64 encoded body atm")
 	}
 
 	event.Body = *body
@@ -63,8 +72,8 @@ func HandleRequest(ctx context.Context, e Event) (string, error) {
 	}
 
 	log.Print("Body - ", string(body))
-	log.Print("Headers - ", e.Headers)
-	log.Print("RequestContext - ", e.RequestContext)
+	// log.Print("Headers - ", e.Headers)
+	// log.Print("RequestContext - ", e.RequestContext)
 
 	return "Function successfully finished!", nil
 }
