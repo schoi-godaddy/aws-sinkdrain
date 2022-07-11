@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -48,9 +47,9 @@ func (event *Event) UnmarshalJSON(data []byte) error {
 			return err
 		}
 	} else {
-		// Having bit of trouble unmarshalling data correctly.
-		// ex) try calling api with javascript fetch().
-		return errors.New("api only supports base64 encoded body atm")
+		if err := json.Unmarshal([]byte(e.Body), &body); err != nil {
+			return err
+		}
 	}
 
 	event.Body = *body
