@@ -23,3 +23,13 @@ aws sink drain
 
 1. Delete the infra
    - `make destroy`
+
+### Check
+
+Once deployed, run `POST` call against api gateway endpoint at route `/sinkdrain`.
+
+ex) `https://<something>.execute-api.<something>.amazonaws.com/sinkdrain`
+
+Wait couple minutes for CloudWatch logs to sync, then check CloudWatch console in AWS UI.
+
+ex) `/aws/lambda/aws-sinkdrain` Log group
