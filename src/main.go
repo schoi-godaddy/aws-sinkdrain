@@ -24,6 +24,12 @@ type APIGatewayEvent struct {
 	IsBase64Encoded bool                   `json:"isBase64Encoded"`
 }
 
+type Response struct {
+	StatusCode int               `json:"statusCode"`
+	Headers    map[string]string `json:"headers"`
+	Body       string            `json:"body"`
+}
+
 // https://www.crimsonmacaw.com/blog/handling-multiple-aws-lambda-event-types-with-go/#aws-lambda-in-go
 // https://pkg.go.dev/encoding/json#Unmarshaler
 func (event *Event) UnmarshalJSON(data []byte) error {
@@ -59,7 +65,7 @@ func (event *Event) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func HandleRequest(ctx context.Context, e Event) (string, error) {
+func HandleRequest(ctx context.Context, e Event) (Response, error) {
 	divisor := 3
 	MaskMap(e.Body, divisor)
 
@@ -67,14 +73,30 @@ func HandleRequest(ctx context.Context, e Event) (string, error) {
 
 	if err != nil {
 		log.Print("Error trying to marshal e")
-		return "ERROR", err
+		return Response{
+			StatusCode: 500,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin":  "*",
+				"Access-Control-Allow-Methods": "*",
+				"Access-Control-Allow-Headers": "*",
+			},
+			Body: "Error trying to marshal event",
+		}, err
 	}
 
 	log.Print("Body - ", string(body))
 	// log.Print("Headers - ", e.Headers)
 	// log.Print("RequestContext - ", e.RequestContext)
 
-	return "Function successfully finished!", nil
+	return Response{
+		StatusCode: 200,
+		Headers: map[string]string{
+			"Access-Control-Allow-Origin":  "*",
+			"Access-Control-Allow-Methods": "*",
+			"Access-Control-Allow-Headers": "*",
+		},
+		Body: "Function success!",
+	}, nil
 }
 
 // Map are pass by reference in Go
