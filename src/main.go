@@ -66,7 +66,7 @@ func (event *Event) UnmarshalJSON(data []byte) error {
 }
 
 func HandleRequest(ctx context.Context, e Event) (Response, error) {
-	divisor := 3
+	divisor := 2
 	MaskMap(e.Body, divisor)
 
 	body, err := json.Marshal(e.Body)
